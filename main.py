@@ -9,20 +9,27 @@ class Environment:
     def __init__(self, Hostname):
         self.Username = os.getlogin()
         self.DeviceName = (platform.node())
-        print(f"Environment: {self.DeviceName[0:1]}")
-        print(f"location: {self.DeviceName[1:4]}")
-        print(f"GSSN: {self.DeviceName[4:11]}")
-        print(f"Devicetype: {self.DeviceName[11:13]}")
-        print(f"Devicenumber: {self.DeviceName[13:15]}")
+        self.env = self.DeviceName[0:1]
+        self.location = self.DeviceName[1:4]
+        self.gssn = self.DeviceName[4:11]
+        self.devicetype = self.DeviceName[11:13]
+        self.devicenumber = self.DeviceName[13:15]
+
+        print(f"Environment: {self.env}")
+        print(f"location: {self.location}")
+        print(f"GSSN: {self.gssn}")
+        print(f"Devicetype: {self.devicetype}")
+        print(f"Devicenumber: {self.devicenumber}")
 
         if len(self.DeviceName) != 15:
             print("----------------------")
             print("Hostname not available!")
 
-
         elif len(self.DeviceName) == 15:
             print("Hostname available!")
 
+
+device = Environment("Hostname")
 
 try:
     connection = mysql.connector.connect(host='localhost',
@@ -43,9 +50,10 @@ except Error as e:
 
 finally:
     if connection.is_connected():
+        sql = "INSERT INTO device (environment, location, gssn, devicetype, devicenumber) VALUE (%s, %s, %s, %s, %s)"
+        cursor.execute(sql, (device.env, device.location, device.gssn, device.devicetype, device.devicenumber))
+        connection.commit()
         cursor.close()
         connection.close()
     print("MySQL connection is closed")
     print("----------------------")
-
-Environment("Hostname")
